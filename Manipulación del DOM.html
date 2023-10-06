@@ -1,0 +1,908 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Manipulación del DOM (Document Object Model).</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+    margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-interactiveBlue { background-color: rgba(35, 131, 226, .07); }
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-translucentGray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+.select-value-color-pageGlass { background-color: undefined; }
+.select-value-color-washGlass { background-color: undefined; }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="0339d822-c7f9-48b9-a68f-df9407cb2364" class="page sans"><header><h1 class="page-title">Manipulación del DOM (Document Object Model).</h1><p class="page-description"></p></header><div class="page-body"><p id="1b7bbbfd-c526-47ee-a658-4dde6275dc2d" class="">La Manipulación del DOM (Document Object Model) es un concepto fundamental en desarrollo web que se refiere a la forma en que puedes<mark class="highlight-yellow_background"><strong> interactuar y cambiar elementos en una página web </strong></mark>utilizando JavaScript. Para explicarlo de manera sencilla, imagina que una página web es como una casa y el DOM es como un plano detallado de esa casa. Puedes usar JavaScript para a<mark class="highlight-yellow_background"><strong>gregar, quitar o modificar objetos dentro de esa casa </strong></mark>(la página web) según tus necesidades.</p><p id="bd77e292-c4a7-42ca-80ff-34a2733717c0" class="">Pero antes debemos <mark class="highlight-yellow_background"><strong>entender </strong></mark>algunos conceptos fundamentales y que son parte de la <mark class="highlight-yellow_background"><strong>sintaxis basica de Javascript</strong></mark> esto poder accesar a los elementos que nosotros queremos modificar sin afectar de forma negativa el resto.</p><p id="9f0c1f05-b096-4958-9a3b-60d55a347918" class="">Pimero que nada si bien ya hicimos mención que el DOM es un <mark class="highlight-yellow_background"><strong>objeto en un documento . </strong></mark>Esto quiere decir que en dicho objeto hay elementos padres, primos e hijos (Parent, Siblings &amp; Children). Dicho de otra manera, imagina que estás construyendo un árbol, pero en lugar de ramas y hojas, tienes elementos HTML y JavaScript. En este caso, los &quot;elementos padres&quot; son como<mark class="highlight-yellow_background"><strong> ramas principales,</strong></mark> y los &quot;elementos hijos&quot; son como las <mark class="highlight-yellow_background"><strong>ramitas que cuelgan de esas ramas</strong></mark>. </p><p id="8ecf1bb2-9ff0-4b96-91de-0c0bfcc4f988" class=""><strong>Visto de forma grafica, seria asi:</strong></p><div id="58f4ebb7-5a82-4750-9437-22e6db4f7e36" class="column-list"><div id="88eb0c62-1539-4680-843b-66ad78c383ea" style="width:75%" class="column"><figure id="5e0c7606-155c-48c2-ad91-e22b339aa7a6" class="image"><a href="Manipulacio%CC%81n%20del%20DOM%20(Document%20Object%20Model)%200339d822c7f948b9a68fdf9407cb2364/Untitled.png"><img style="width:432px" src="Manipulacio%CC%81n%20del%20DOM%20(Document%20Object%20Model)%200339d822c7f948b9a68fdf9407cb2364/Untitled.png"/></a></figure><p id="153d22ad-d020-42af-a42a-2b692a8a58e4" class="">
+</p></div><div id="05c6b5f1-c170-4358-8cc1-997b45bd429e" style="width:25.000000000000007%" class="column"><p id="2840d61d-f367-4517-9223-5bb68209c5e8" class=""><strong>Esta es la manera en como Javascript representa el </strong><mark class="highlight-yellow_background"><strong>documento </strong></mark><strong>HTML en nuestro navegador y la forma en la que representa los elementos que la contienen.</strong></p><p id="5c18f8f5-219d-4958-96de-a0e3eba6ec2b" class="">
+</p></div></div><p id="733543a1-9728-4d32-b7d1-ef7597992460" class=""><strong><mark class="highlight-blue_background">window </mark></strong>es como la ventana principal de tu navegador. Piensa en ello como el entorno global donde vive tu código JavaScript cuando se ejecuta en un navegador web.</p><p id="e82055ea-6664-4f0b-bbf3-55e7217dc87d" class=""><mark class="highlight-purple_background"><strong>document </strong></mark>se refiere al objeto global que representa el documento HTML cargado en la ventana. En términos más sencillos, es como el lienzo en el que está pintada toda la página web.</p><p id="6f5ece8b-f405-4e32-b974-256d274d1847" class=""><strong><mark class="highlight-red_background">HTML</mark></strong>. Es como el mapa o la representación estructurada de tu página HTML. Piensa en HTML como la estructura y contenido de tu página web.</p><figure id="444e01b5-05af-43fa-adb5-ba21adf3bc87" class="image"><a href="Manipulacio%CC%81n%20del%20DOM%20(Document%20Object%20Model)%200339d822c7f948b9a68fdf9407cb2364/Untitled%201.png"><img style="width:1080px" src="Manipulacio%CC%81n%20del%20DOM%20(Document%20Object%20Model)%200339d822c7f948b9a68fdf9407cb2364/Untitled%201.png"/></a></figure><p id="c8449e52-7cca-470a-8207-1cdeb1894215" class=""><strong><mark class="highlight-teal_background">Elemento Padr</mark></strong>e: Este es como el &quot;abuelo&quot; de todos. Un elemento padre contiene otros elementos. Piensa en un &lt;div&gt; como un padre que tiene hijos, como un &lt;p&gt; y un &lt;img&gt;. El &lt;div&gt; es el jefe de familia aquí.</p><p id="32490396-795a-41c1-839d-d16a9036240d" class=""><mark class="highlight-gray_background"><strong>Elemento Hijo</strong></mark>: Estos son como los hijos en una familia. Viven dentro de un elemento padre. Así que, si tienes un &lt;div&gt; que contiene un &lt;p&gt;, el &lt;p&gt; es el hijo del &lt;div&gt;. Puedes tener varios hijos, como un montón de &lt;p&gt; o cualquier otro elemento.</p><p id="c5d7e06a-0de5-45c2-a637-7905dff31c31" class=""><mark class="highlight-yellow_background"><strong>Elemento Primo</strong></mark>: Ahora, los primos son un poco más lejanos en la familia, pero aún están conectados. En términos de HTML y JavaScript, dos elementos son primos si comparten el mismo abuelo. Si tienes un &lt;div&gt; que tiene un &lt;p&gt; como hijo, y otro &lt;div&gt; que también tiene un &lt;p&gt; como hijo, esos dos &lt;p&gt; son primos. Comparten el mismo abuelo &lt;div&gt;.</p><p id="91a047ae-b621-4df2-ad37-bed058377022" class="">Ejemple:</p><pre id="0f3e671e-deec-4007-bdd5-c82d0902d86d" class="code"><code>&lt;div&gt; &lt;!-- Este es el elemento padre y tengo un solo hijo --&gt;
+    &lt;p&gt;¡Hola! Soy el hijo.&lt;/p&gt; &lt;!-- Este es el elemento hijo --&gt;
+&lt;/div&gt;
+
+&lt;div&gt; &lt;!-- Otro elemento padre Y tengo tres hijos (primo del anterior) --&gt;
+		&lt;img&gt; ¡Hola de nuevo! Soy otro hijo.&lt;/p&gt; &lt;!-- Otro elemento hijo (primo del anterior) --&gt;
+		&lt;h1&gt;&lt;/h1&gt; ¡Hola Soy otro hijo.&lt;/p&gt; &lt;!-- Otro elemento hijo (primo del anterior) --&gt;
+    &lt;p&gt;Soy otro hijo.&lt;/p&gt; &lt;!-- Otro elemento hijo (primo del anterior) --&gt;
+&lt;/div&gt;</code></pre><p id="ea8e88ee-06d6-42ca-96d1-86b94319bb13" class="">
+</p><h2 id="7d259d62-5329-4df1-b8d5-9813f03f5893" class="">Selectores en Javascript.</h2><p id="df4a9605-24aa-4157-b4ae-da71caa77da4" class="">Los selectores en JavaScript son herramientas que te permiten seleccionar y manipular elementos HTML desde tu código. Son como una especie de atajos que te ayudan a identificar y trabajar con partes específicas de tu página web.</p><p id="84c48bf6-5fdc-4dd3-954f-a782972752fc" class="">Hay varios tipos de selectores, pero los más comunes son:</p><p id="0ead58e4-843b-4250-b541-44f47e542f66" class="">
+</p><p id="592a1857-7492-4cc7-a299-80746c4665f2" class=""><strong>Selectores por etiqueta: </strong>Seleccionan todos los elementos con una etiqueta específica.</p><p id="5c049361-4965-4ff7-8ec8-022480d3d029" class="">Sintaxis:</p><pre id="ea743b78-03b5-4442-8ae8-4b754fe96763" class="code"><code>// Selecciona todos los elementos con etiqueta p dentro del HTML
+document.getElementsByTagName(&#x27;p&#x27;);
+// Seleccionara todos los parrafos que contenga la pagina.</code></pre><p id="b18350ae-d72e-48f5-be2b-051ff1c729d6" class="">
+</p><p id="6e4f8d2b-eea5-48d7-9eb8-c11e3f4a85a3" class=""><strong>Selectores por clase:: </strong>Seleccionan elementos que tienen una clase específica.</p><p id="b8655d1f-3e6a-4aa2-9384-c6ebce783131" class="">Sintaxis:</p><pre id="16b2edac-a3dd-4c18-bb60-2f5a1ac1ccad" class="code"><code>// Selecciona todos los elementos que tengan la clase mi-clase en su etiqueta.
+document.getElementsByClassName(&#x27;mi-clase&#x27;);</code></pre><p id="950b69f2-3df5-40e5-b19f-58f220b780eb" class="">
+</p><p id="032ebb60-74cc-4f19-9edd-733a1758df27" class=""><strong>Selectores por ID:</strong> Seleccionan un elemento con un ID específico.</p><pre id="ea1b65b9-5399-4b99-a941-dfd2de53f33a" class="code"><code>// Seleccionara el elemento que en su etiqueta tenga el ID mi-id
+document.getElementById(&#x27;mi-id&#x27;);</code></pre><p id="d3971159-9536-48c0-aafd-0661b3401f08" class=""><mark class="highlight-yellow_background"><strong>Hay que recordar que las etiquetas que contengan un ID dentro de ellas son unicos, es decir, no se pueden repetir en cuanto a nombre</strong></mark>.</p><p id="af40a392-8b9b-4d60-90a3-0c0e8e71ad0c" class="">
+</p><p id="7fc56928-878f-4ae0-add9-27824249e02a" class=""><strong>Selectores por atributo:</strong> Seleccionan elementos que tienen un atributo específico.</p><pre id="48b162f9-dd40-4499-9c66-c5d50c2d901f" class="code"><code>// Seleccionará todos los elementos con el atributo y valor especificados.
+document.querySelectorAll(&#x27;[atributo=valor]&#x27;);</code></pre><p id="8fdb9575-e932-4049-b41b-1766bea745c6" class="">
+</p><p id="7c043b45-1d36-422a-b803-3978a4eed349" class=""><strong>Selectores por relación</strong>: Seleccionan elementos basados en su relación con otros elementos.</p><pre id="a04a165c-40ad-46c5-91da-429ea4dca7e8" class="code"><code>// eleccionará el primer &lt;span&gt; que sea hijo directo de un &lt;p&gt;.
+document.querySelector(&#x27;p &gt; span&#x27;);</code></pre><p id="2f77e688-ce14-485a-8e80-54c1c0bb564a" class="">
+</p><h2 id="2bf4db7f-2f60-4369-9672-27caa909dacb" class="">Eventos en Javascript.</h2><p id="08578d77-2687-4154-9651-457e9fae6d66" class="">Los eventos en JavaScript son como <mark class="highlight-yellow_background"><strong>señales </strong></mark>que tu página web puede detectar y <mark class="highlight-yellow_background"><strong>responder a medida que interactúas con ella</strong></mark>. Imagina que estás haciendo clic en un botón, moviendo el ratón, o escribiendo en un campo de texto. Cada una de estas acciones es un evento, y JavaScript te permite escribir código que reaccione a estos eventos.</p><p id="d516f314-697b-4bba-8ff5-b43f0ea28990" class="">Aquí hay algunos conceptos clave:</p><h3 id="da85ec5a-caef-4e40-a72f-41f4670c5b71" class="">Eventos Básicos:</h3><ul id="f4194fb1-6d08-4013-876e-131b8bf448a5" class="bulleted-list"><li style="list-style-type:disc"><strong>Clic (Click)</strong>: Ocurre cuando haces clic en un elemento.</li></ul><ul id="c01127bb-625e-4d6f-9d9c-24dd98824af5" class="bulleted-list"><li style="list-style-type:disc"><strong>Doble Clic (DoubleClick)</strong>: Ocurre cuando haces doble clic en un elemento.</li></ul><ul id="61ded3e9-50a3-4dbe-9119-7df1fb48b93a" class="bulleted-list"><li style="list-style-type:disc"><strong>Tecla Presionada (KeyPress)</strong>: Ocurre cuando presionas una tecla del teclado.</li></ul><ul id="12dec68d-0cf1-4359-8981-97a512117936" class="bulleted-list"><li style="list-style-type:disc"><strong>Cambio (Change):</strong> Ocurre cuando el valor de un elemento cambia, como en un campo de formulario.</li></ul><ul id="fd5f1a09-3b32-4f22-bcc7-198b4e4f54d2" class="bulleted-list"><li style="list-style-type:disc"><strong>Scroll:</strong> Se activa cuando el usuario desplaza la página hacia arriba o hacia abajo. Perfecto para implementar efectos de desplazamiento.</li></ul><ul id="e9fdacfd-f473-47fb-93bd-b00acee83041" class="bulleted-list"><li style="list-style-type:disc"><strong>Mouseover y Mouseout:</strong> Estos eventos se desencadenan cuando el cursor del mouse entra o sale de un elemento. Útiles para efectos visuales o información adicional.</li></ul><ul id="c5234bff-0fc3-4aa8-a227-4991df5d7c8e" class="bulleted-list"><li style="list-style-type:disc"><strong>Submit:</strong> Ocurre cuando se envía un formulario. Puedes usarlo para validar datos antes de enviarlos al servidor.</li></ul><ul id="23cda07e-9173-4f63-9807-841ea9660498" class="bulleted-list"><li style="list-style-type:disc"><strong>Focus y Blur:</strong> El evento de enfoque ocurre cuando un elemento obtiene el foco (por ejemplo, un campo de entrada), y el evento de desenfoque cuando pierde el foco. Útiles para validaciones en formularios.</li></ul><ul id="e41b4b52-4c03-4715-b49d-4dadcfa6eb85" class="bulleted-list"><li style="list-style-type:disc"><strong>DOMContentLoaded:</strong> Este evento se activa cuando el documento HTML ha sido completamente cargado y analizado, sin esperar a que se carguen imágenes y hojas de estilo. Es útil para realizar acciones iniciales cuando la estructura del documento está lista.</li></ul><p id="daacbe06-94f7-4b54-9315-f06c0b04e7ed" class="">
+</p><p id="b2075b10-6213-487b-b49a-7d4e7a856376" class=""><strong>Escuchadores de Eventos</strong>: Para manejar un evento, usas &quot;escuchadores&quot; (listeners) de eventos.</p><p id="b9775529-f145-4521-9bf6-6802c39db56d" class="">Es un método en JavaScript que se utiliza para adjuntar un evento a un elemento del DOM (Documento Object Model). Este método permite escuchar eventos y ejecutar una función específica cuando ocurre ese evento.</p><p id="d00bdcfe-6b9d-4258-a25f-c4728b8d7113" class=""><strong>Sintaxis basica: </strong></p><pre id="0d45b7f5-b085-48f1-9e00-d33353e06bb6" class="code"><code>elemento.addEventListener(evento, función);
+// El evento puede ser cualquiera de los que se hicieron mencion arriba, es decir,
+// puede ser un evento clic, keyPress, Scroll, etc.
+// La función representa la instruccion al accionar el dicho evento, es decir, 
+// que queremos que haga cuando el usuario cliquee, presione una telca o haga scroll.</code></pre><pre id="937fd7c5-2998-4464-b255-14222b960df6" class="code"><code>// Creamos una variable llamada miBoton. 
+// Seleccionamos al elemento dentro del documento por su nombde de ID.
+var miBoton = document.getElementById(&#x27;miBoton&#x27;);
+
+// Creamos una instruccion que escuche y realize un evento al hacer &quot;clic&quot;
+miBoton.addEventListener(&#x27;click&#x27;, function() {
+    // Una ves que se ha hecho clic, se va a activar una funcion sin parametros
+		// la cual tendra una instruccion de desplegar un mensaje dentro del navegador.
+    alert(&#x27;¡Se hizo clic en el botón!&#x27;);
+});</code></pre><p id="28974047-4c31-4716-8a46-63f384a5e737" class="">
+</p><h3 id="a6b7cf4a-dd77-4156-b581-49f52712cdbe" class="">Ejemplos practicos.</h3><p id="ec12ef16-b435-4f9e-9c4d-e14d9722855f" class=""><strong>Cambiar de color el fondo con javascript.</strong></p><p id="7eaf8c84-d414-48f1-bb69-731fc6a35c30" class=""><strong>HTML</strong></p><pre id="49be3409-b8b1-4e8c-82b3-e3aa3b5f1944" class="code"><code>&lt;!-- Botón para cambiar el fondo --&gt;
+  &lt;button id=&quot;cambiarFondoBtn&quot;&gt;Cambiar Fondo&lt;/button&gt;</code></pre><p id="e80c0d24-c2f2-4f36-afcf-7c841a26d286" class="">
+</p><p id="6dc4ce65-3eb4-4284-b09a-26ba300a5c8f" class=""><strong>CSS</strong></p><pre id="8be1c984-6396-4a09-9cb8-c1da8a4bba61" class="code"><code>body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      transition: background-color 0.5s ease;
+  }</code></pre><p id="5394d008-f22e-4996-9857-ff3d224847d2" class="">
+</p><p id="c5917c25-4484-4218-b49b-3e50c8871f8d" class=""><strong>Javascript</strong></p><pre id="143551b5-8c6b-4524-8f7d-de754d7ec50d" class="code"><code>// Creamos una variable y Seleccionamos el botón por su ID
+    let boton = document.getElementById(&#x27;cambiarFondoBtn&#x27;);
+
+    // Agregamos un evento de clic al botón y al mismo tiempo agregamos
+    // una funcion sin parametro entre los parentesis, pero si con una instruccion dentro
+    // de ella entre los corchetes.
+    boton.addEventListener(&#x27;click&#x27;, function() {
+      // Verificamos el color actual del fondo entrando a la ventana del navegador y tomando
+      // las propiedades que tenga, es decir el CSS.
+      // Para esto, vamos a crear una variable que va a contener todos estos datos, la cual 
+      // llamaremos colorActual
+      let colorActual = window.getComputedStyle(document.body, null).getPropertyValue(&#x27;background-color&#x27;);
+
+      // Si el color actual es, en este caso, identico a blanco, cambiamos a azul; de lo contrario, volvemos a blanco.
+      // rgb es un modo de color que pueden usar en CSS al igual que valores hexadecimales.
+      // RGB = Red, Blue, Green. En este caso 255, 255, 255. Corresponde al color blanco puro.
+      // RGBA = Red, Blue, Green, Aplha. Esta propiedad es similar a la anterior, la diferentcia es que
+      // el ulstimo valor hace referencia a la transparencia del color. La cual podemos media con 
+      // valores numericos decimales y enteros, es decir, 0 representaria la ausencia de color, 1 la totalidad del color
+      // Y los numeros decimales, el % de transparencia, por ejemplo, .5 = 50% de transparencia.
+      
+      if (colorActual === &#x27;rgb(255, 255, 255)&#x27;) {
+        document.body.style.backgroundColor = &#x27;blue&#x27;;
+      } else {
+        document.body.style.backgroundColor = &#x27;white&#x27;;
+      }
+    });</code></pre><p id="3c4edc89-1513-4b8f-92a5-d1bc0c9ca085" class="">
+</p><p id="44589de8-c5bd-4ced-8fc1-a09b660d2f5f" class=""><strong>Suma de dos numeros ingresados por el usuario en campo de texto.</strong></p><pre id="de9eef77-d17e-4dc3-b39d-12aaea0ab398" class="code"><code>&lt;form id=&quot;additionForm&quot;&gt;
+    &lt;label for=&quot;num1&quot;&gt;Primer numero:&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;num1&quot;&gt;
+    &lt;br&gt;
+
+    &lt;label for=&quot;num2&quot;&gt;Segundo numero:&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;num2&quot;&gt;
+    &lt;br&gt;
+
+    &lt;button type=&quot;button&quot; onclick=&quot;performAddition()&quot;&gt;Sumar&lt;/button&gt;
+  &lt;/form&gt;
+
+  &lt;p id=&quot;result&quot;&gt;&lt;/p&gt;</code></pre><p id="330733a2-c5e6-443a-bf19-81cebd0b92ad" class="">
+</p><p id="7c798352-3724-4c0a-8b0f-d471c4c8efb7" class=""><strong>Javascript</strong></p><pre id="f309c8e6-9afb-4a98-98ba-0c54dd63b557" class="code"><code>// Creamos una funcion que se llama &quot;realiza Suma&quot;
+function realizaSuma() {
+      // Obtenemos los valores que ingresemos en los campos de texto
+      // Para ello creamos dos contantes, una para cada digito.
+      // En este caso son constantes por que siempre queremos que sea
+      // un digito en los campos.
+  
+      // Accesamos a los elementos buscandolos en el documento por su ID y
+      // los guardamos en sus respectivas constantes.
+      const num1 = parseFloat(document.getElementById(&#x27;num1&#x27;).value);
+      // parseFloat, Se utiliza para aceptar una cadena y convertirla en un número
+      // de punto flotante, de esta manera aseguramos que todos los datos
+      // sean de tipo numero.
+      const num2 = parseFloat(document.getElementById(&#x27;num2&#x27;).value);
+
+      // Verificamos los campos y aseguramos que solo sean numeros los que
+      // se ingresen.
+      
+      if (!isNaN(num1) &amp;&amp; !isNaN(num2)) {
+        // Si la condicion se cumple, pasamos a realiza la suma
+        const resultado = num1 + num2;
+
+        // Desplegamos el resultado en pantalla
+        document.getElementById(&#x27;result&#x27;).innerText = `El resultado es: ${resultado}`;
+      } else {
+        // Desplegamos un mensaje de error, en el caso de que no sea un numero
+        document.getElementById(&#x27;result&#x27;).innerText = &#x27;Por favor, solo ingrese numeros.&#x27;;
+      }
+    }</code></pre><p id="531dcdb7-55bf-4045-bdbb-40d7435130f7" class="">
+</p><p id="311376ca-7104-4206-8077-afc2f985233c" class=""><strong>Cambiar de color y contenido un boton</strong></p><p id="1d42a395-8a17-4cde-abd3-24d05cde6617" class=""><strong>HTML</strong></p><pre id="e37f5a6a-a4ac-4754-abee-a99e8c44f578" class="code"><code>&lt;button id=&quot;enviarBtn&quot;&gt;Enviar&lt;/button&gt;</code></pre><p id="9643729a-e184-4747-b86e-4bd18f5aa432" class="">
+</p><p id="8a38f741-88d2-4930-b4bb-f35367f5f2ba" class=""><strong>CSS</strong></p><pre id="a1018e0e-408e-4adc-b513-23f8c1041e89" class="code"><code>body {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-self: center;
+}
+
+.enviado {
+      background-color: rgba(46, 204, 113,1.0);
+    font-weight: bold;
+  color: #ffffff;
+  font-size; 16px;
+  border:none;
+    }
+
+button {
+  background-color: rgba(52, 152, 219,1.0);
+  padding: 15px 35px;
+  font-weight: bold;
+  color: #ffffff;
+  font-size; 16px;
+  border:none;
+  
+}</code></pre><p id="e15a669b-527a-4ac9-a880-462a68b9715a" class="">
+</p><p id="b62bf458-25b2-4bba-89fc-e257cec0cf5a" class=""><strong>Javascript</strong></p><pre id="c340ba9b-2af4-48c6-aae8-eef96c63c7ad" class="code"><code>// Seleccionamos el botón por su ID
+    var enviarBtn = document.getElementById(&#x27;enviarBtn&#x27;);
+
+    // Agregamos un evento de clic al botón
+    enviarBtn.addEventListener(&#x27;click&#x27;, function() {
+      // Cambiamos el texto del botón a &#x27;Enviado&#x27;
+      enviarBtn.innerText = &#x27;Enviado&#x27;;
+
+      // Aplicamos la clase &#x27;enviado&#x27; para cambiar el color
+      enviarBtn.classList.add(&#x27;enviado&#x27;);
+
+      // Deshabilitamos el botón después de hacer clic
+      enviarBtn.disabled = true;
+    });</code></pre><p id="f71d39bf-62e7-4872-a4f9-d9c828c623dd" class="">
+</p><p id="e177ca51-493b-4292-9ee8-aeaa9fc003e8" class=""><strong>Menu de navegación desplegable</strong></p><p id="649cd134-a430-4cbe-acdb-4df785ff3fa6" class=""><strong>HTML</strong></p><pre id="9fa9cf56-75e2-4199-a5dc-d2b82fc78e12" class="code"><code>&lt;nav&gt;
+    &lt;a href=&quot;#&quot; id=&quot;logo&quot;&gt;Logo&lt;/a&gt;
+
+    &lt;!-- Icono de menú para dispositivos móviles --&gt;
+    &lt;div id=&quot;menuToggle&quot;&gt;&amp;#9776;&lt;/div&gt;
+
+    &lt;ul id=&quot;menu&quot;&gt;
+      &lt;li class=&quot;menuItem&quot;&gt;&lt;a href=&quot;#&quot;&gt;Inicio&lt;/a&gt;&lt;/li&gt;
+      &lt;li class=&quot;menuItem&quot;&gt;&lt;a href=&quot;#&quot;&gt;Servicios&lt;/a&gt;&lt;/li&gt;
+      &lt;li class=&quot;menuItem&quot;&gt;&lt;a href=&quot;#&quot;&gt;Acerca de&lt;/a&gt;&lt;/li&gt;
+      &lt;li class=&quot;menuItem&quot;&gt;&lt;a href=&quot;#&quot;&gt;Contacto&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/nav&gt;</code></pre><p id="d162cda2-49ce-4f2d-8c09-804404cf56aa" class="">
+</p><p id="e4428b25-9601-4d27-ac59-c9cd7b8b7667" class=""><strong>CSS</strong></p><pre id="12533d07-b587-4c04-92ab-9cf0a5701450" class="code"><code>body {
+      margin: 0;
+      font-family: &#x27;Arial&#x27;, sans-serif;
+    }
+
+    nav {
+      background-color: #333;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #logo {
+      color: white;
+      text-decoration: none;
+      font-size: 1.5em;
+    }
+
+    #menu {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .menuItem {
+      margin-right: 20px;
+    }
+
+    /* Estilos para el menú desplegable en modo móvil */
+    @media only screen and (max-width: 768px) {
+      #menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background-color: #333;
+        text-align: center;
+      }
+
+      .menuItem {
+        margin: 0;
+        padding: 10px;
+        border-bottom: 1px solid #555;
+      }
+
+      #menuToggle {
+        display: block;
+        color: white;
+        font-size: 1.5em;
+        cursor: pointer;
+      }
+    }</code></pre><p id="9e745675-0e6e-4f9c-b051-2386bcec42e9" class="">
+</p><p id="1d4a094b-4880-47dc-b08b-00280b1f366c" class=""><strong>Javascript</strong></p><pre id="cc3eb9b5-9c65-47d1-b691-a54a84dcadbf" class="code"><code>// Funcionalidad para mostrar/ocultar el menú en dispositivos móviles
+    let menuToggle = document.getElementById(&#x27;menuToggle&#x27;);
+    let menu = document.getElementById(&#x27;menu&#x27;);
+
+    menuToggle.addEventListener(&#x27;click&#x27;, function() {
+      menu.style.display = (menu.style.display === &#x27;flex&#x27; || menu.style.display === &#x27;&#x27;) ? &#x27;none&#x27; : &#x27;flex&#x27;;
+    });</code></pre></div></article></body></html>
